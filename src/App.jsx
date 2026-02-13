@@ -4,24 +4,24 @@ import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-r
 const dashboardData = [
   {
     id: "col-1",
-    // title: "Анализ рынка",
+    title: "Анализ",
     items: [
       { id: "customs-base", text: "Обработка таможенной базы, регистрация, статистики. Хронометраж. Опрос." },
       { id: "cargo-market", text: "Анализ рынка грузовой техники 14-40 тн" },
       { id: "trailer-market", text: "Анализ рынка прицепной техники" },
       { id: "minitruck-market", text: "Анализ рынка минигрузовиков" },
       { id: "fin-committee", text: "Материалы по Финкомитету" },
-      { id: "cis-market", text: "Анализ рынка РФ и Казахстан" }
+      { id: "cis-market", text: "Анализ рынка РФ и Казахстан" },
+      { id: "pp-324", text: "Анализ исполнения ПП-324, 12.09.2024." },
     ]
   },
   {
     id: "col-2",
-    // title: "Исполнение и Производство",
+    title: "Производство",
     items: [
-      { id: "pp-324", text: "Анализ исполнения ПП-324, 12.09.2024." },
       {
         id: "prod-list",
-        text: "Производство",
+        // text: "Производство",
         isList: true,
         subItems: [
           { id: "prod-1", text: "1. Анализ сырья" },
@@ -71,7 +71,7 @@ const dashboardData = [
   },
   {
     id: "col-5",
-    // title: "Стратегия",
+    title: "Итог",
     items: [
       { id: "offers", text: "Предложения" },
       { id: "event-plan", text: "План мероприятий" },
