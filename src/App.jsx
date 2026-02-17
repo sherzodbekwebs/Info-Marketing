@@ -80,7 +80,7 @@ const globalStyles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #08080f;
+    background: #071230;
     color: #dcdcf0;
     font-family: 'Manrope', sans-serif;
     min-height: 100vh;
@@ -192,9 +192,9 @@ const globalStyles = `
     font-size: 13px;
     font-weight: 600;
     line-height: 1.5;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 2px solid rgba(255, 255, 255, 0.06);
     background: rgba(20,20,35,0.7);
-    color: #c0c0dc;
+    color: #cfcfe6;
     min-height: 58px;
     text-decoration: none;
     transition: all 0.22s ease;
@@ -253,7 +253,7 @@ const globalStyles = `
     font-size: 12.5px;
     font-weight: 600;
     text-decoration: none;
-    color: #b0b0cc;
+    color: #d5d5e6;
     background: rgba(255,255,255,0.04);
     border: 1px solid transparent;
     transition: all 0.2s ease;
