@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
 
-// 1. DATA (O'zgarishsiz)
+// 1. DATA
 const analysisDetails = {
   "customs-base": {
     content: `Обработка данных таможенный базы. Сегментация импорта грузовых автомобилей 14-40 тн, прицепной техники и минигрузовиков полной массой 2-3,55 тн;
@@ -47,7 +47,6 @@ const dashboardData = [
   { id: "col-5", title: "Итог", items: [{ id: "offers", text: "Предложения" }, { id: "event-plan", text: "План мероприятий" }, { id: "marketing-strategy", text: "Маркетинговая стратегия" }] }
 ];
 
-// ─── ACCENT COLORS ──────────────────────────────────────────────────────────
 const colAccents = {
   "col-1": { bg: "#f0ebff", border: "#d6bcfa", text: "#5d3fd3" },
   "col-2": { bg: "#e6f4ff", border: "#90cdf4", text: "#0077cc" },
@@ -57,61 +56,95 @@ const colAccents = {
 };
 
 const globalStyles = `
-  body { background: #f8fafc; color: #1e293b; font-family: 'Manrope', sans-serif; margin: 0; }
+  body { background: #f8fafc; color: #1e293b; font-family: 'Manrope', sans-serif; margin: 0; overflow-x: hidden; }
   .grid-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px); background-size: 40px 40px; opacity: 0.4; }
 
-  .dash-header { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 14px 32px; text-align: center; position: relative; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .dash-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(20px, 3vw, 28px); letter-spacing: 4px; color: #0f172a; margin: 0; }
+  .dash-header { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 14px 20px; text-align: center; position: relative; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .dash-header h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(18px, 4vw, 26px); letter-spacing: 2px; color: #0f172a; margin: 0; }
 
-  .dash-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 30px 20px; position: relative; z-index: 10; max-width: 1700px; margin: 0 auto; }
+  /* RESPONSIVE GRID */
+  .dash-grid { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 15px; 
+    padding: 20px; 
+    position: relative; 
+    z-index: 10; 
+    max-width: 1700px; 
+    margin: 0 auto; 
+  }
+
+  @media (max-width: 1280px) { .dash-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 850px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 550px) { .dash-grid { grid-template-columns: 1fr; } }
   
   .col-wrap { display: flex; flex-direction: column; gap: 12px; }
-  .col-head { padding: 14px; border-radius: 12px; font-weight: 800; text-align: center; text-transform: uppercase; font-size: 14px; border: 2px solid transparent; }
+  .col-head { padding: 12px; border-radius: 12px; font-weight: 800; text-align: center; text-transform: uppercase; font-size: 13px; border: 2px solid transparent; }
   
-  .item-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 16px; font-size: 13px; font-weight: 700; color: #334155; text-decoration: none; display: flex; align-items: center; justify-content: center; text-align: center; height: 65px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); line-height: 1.5; }
+  .item-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 12px; font-size: 13px; font-weight: 700; color: #334155; text-decoration: none; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 60px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); line-height: 1.4; }
   .item-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #cbd5e1; color: #0f172a; }
 
   .list-block { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
   .list-block-header { padding: 10px; font-size: 11px; font-weight: 800; text-align: center; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
   .list-sub-link { display: block; padding: 10px 15px; font-size: 12px; text-decoration: none; color: #475569; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
-  .list-sub-link:hover { background: #f8fafc; color: #2563eb; padding-left: 20px; }
 
-  .detail-wrap { height: 100vh; display: flex; flex-direction: column; background: #f1f5f9; }
-  .detail-topbar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
-  .back-btn { background: #0f172a; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 12px; text-transform: uppercase; }
-  .detail-title { font-weight: 800; font-size: 18px; color: #1e293b; text-transform: uppercase; margin: 0; flex: 1; text-align: center; }
+  /* DETAIL PAGE RESPONSIVE */
+  .detail-wrap { min-height: 100vh; display: flex; flex-direction: column; background: #f1f5f9; }
+  .detail-topbar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 50; flex-wrap: wrap; gap: 10px; }
+  .back-btn { background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
+  .detail-title { font-weight: 800; font-size: clamp(14px, 3vw, 18px); color: #1e293b; text-transform: uppercase; margin: 0; flex: 1; text-align: center; min-width: 200px; }
 
-  .detail-body { flex: 1; display: flex; overflow: hidden; padding: 20px; gap: 20px; position: relative; }
-  .detail-sidebar { width: 25%; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+  .detail-body { flex: 1; display: flex; padding: 15px; gap: 15px; position: relative; }
+  
+  @media (max-width: 1024px) {
+    .detail-body { flex-direction: column; overflow-y: auto; }
+    .detail-sidebar { width: 100% !important; order: 2; }
+    .detail-right { width: 100% !important; order: 1; min-height: 500px; }
+  }
+
+  .detail-sidebar { width: 25%; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
   .detail-right { flex: 1; display: flex; flex-direction: column; gap: 15px; }
 
-  .tab-bar { display: flex; gap: 10px; }
-  .tab-btn { padding: 12px 24px; border-radius: 8px; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; font-weight: 700; font-size: 12px; cursor: pointer; }
+  .tab-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+  .tab-btn { padding: 10px 18px; border-radius: 8px; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; font-weight: 700; font-size: 11px; cursor: pointer; white-space: nowrap; }
   .tab-btn.active { background: #5d3fd3; color: #ffffff; border-color: #5d3fd3; }
 
-  .content-frame-container { flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-  .persistent-iframe-wrapper { position: fixed; visibility: hidden; pointer-events: none; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; }
+  .content-frame-container { flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 350px; }
+  .persistent-iframe-wrapper { position: fixed; visibility: hidden; pointer-events: none; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; transition: opacity 0.2s; }
   .persistent-iframe-wrapper.visible { visibility: visible; pointer-events: auto; z-index: 40; }
 `;
 
-// ─── IFRAME CACHE ───────────────────────────────────────────────────────────
+// ─── IFRAME CACHE (RESPONSIVE POSITIONING) ──────────────────────────────────
 const IframeCache = ({ activeId, activeTab }) => {
   const location = useLocation();
   const isDetail = location.pathname.startsWith('/detail');
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
       {Object.entries(analysisDetails).map(([id, data]) => {
         if (!data.powerBiUrl) return null;
         const isVisible = isDetail && activeId === id && activeTab === 'powerbi';
+        
+        // Dinamik joylashuvni hisoblash
+        let style = { visibility: isVisible ? 'visible' : 'hidden', opacity: isVisible ? 1 : 0 };
+        
+        if (windowSize.width > 1024) {
+          // Desktop
+          style = { ...style, top: '165px', left: 'calc(25% + 50px)', right: '35px', bottom: '35px' };
+        } else {
+          // Mobile/Tablet
+          style = { ...style, top: '150px', left: '30px', right: '30px', height: '450px' };
+        }
+
         return (
-          <div
-            key={id}
-            className={`persistent-iframe-wrapper ${isVisible ? 'visible' : ''}`}
-            style={{
-              top: '165px', left: 'calc(25% + 60px)', right: '40px', bottom: '40px',
-            }}
-          >
+          <div key={id} className={`persistent-iframe-wrapper ${isVisible ? 'visible' : ''}`} style={style}>
             <iframe title={id} src={data.powerBiUrl} width="100%" height="100%" frameBorder="0" allowFullScreen={true} />
           </div>
         );
@@ -184,12 +217,12 @@ const DetailPage = ({ setActiveId, activeTab, setActiveTab }) => {
       <header className="detail-topbar">
         <Link to="/" className="back-btn">← НАЗАД</Link>
         <h2 className="detail-title">{currentTitle}</h2>
-        <div style={{ width: 100 }} />
+        <div className="mobile-spacer" style={{ width: '40px' }} />
       </header>
 
       <div className="detail-body">
         <aside className="detail-sidebar">
-          <div style={{ color: '#334155', fontSize: '15px', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+          <div style={{ color: '#334155', fontSize: '14px', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
             {detail?.content || "Описание будет добавлено в ближайшее время."}
           </div>
         </aside>
@@ -204,14 +237,9 @@ const DetailPage = ({ setActiveId, activeTab, setActiveTab }) => {
           </div>
 
           <div className="content-frame-container">
-            {activeTab !== 'powerbi' && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontWeight: '600' }}>
+            {(activeTab !== 'powerbi' || !detail?.powerBiUrl) && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontWeight: '600', padding: '20px', textAlign: 'center' }}>
                 Контент {activeTab.toUpperCase()} еще не подключен
-              </div>
-            )}
-            {activeTab === 'powerbi' && !detail?.powerBiUrl && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontWeight: '600' }}>
-                Контент POWERBI еще не подключен
               </div>
             )}
           </div>
